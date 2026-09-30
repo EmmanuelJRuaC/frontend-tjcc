@@ -1,0 +1,331 @@
+:host {
+  --verde-profundo: #0a2c20;
+  --verde: #0f3b2a;
+  --verde-claro: #17503a;
+  --oro: #d9b970;
+  --oro-oscuro: #b98f45;
+  --crema: #f6efe0;
+  --crema-suave: rgba(246, 239, 224, 0.68);
+  --borde: rgba(217, 185, 112, 0.24);
+
+  display: block;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px 16px;
+
+  color: var(--crema);
+
+  background-color: var(--verde);
+  background-image:
+    radial-gradient(ellipse at 50% 35%, rgba(23, 80, 58, 0.75), transparent 62%),
+    radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.45), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(217, 185, 112, 0.07) 0 1px, transparent 1px 38px),
+    repeating-linear-gradient(-45deg, rgba(217, 185, 112, 0.07) 0 1px, transparent 1px 38px);
+}
+
+.login-container {
+  position: relative;
+
+  width: min(440px, 100%);
+  padding: 44px 38px 38px;
+
+  background: rgba(8, 40, 29, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border: 1px solid var(--borde);
+  border-radius: 24px;
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(217, 185, 112, 0.18);
+
+  animation: loginEntrada 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+
+  border: 1px solid rgba(217, 185, 112, 0.1);
+  border-radius: 17px;
+
+  pointer-events: none;
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-logo {
+  display: block;
+
+  width: 112px;
+  height: 112px;
+
+  margin: 0 auto 18px;
+
+  object-fit: cover;
+  border-radius: 22px;
+
+  border: 1px solid var(--borde);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+.login-brand h1 {
+  margin: 0 0 6px;
+
+  font-size: 2.5rem;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+
+  color: var(--oro);
+}
+
+.login-brand p {
+  margin: 0;
+
+  font-size: 0.95rem;
+  font-weight: 300;
+
+  color: var(--crema-suave);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--crema);
+}
+
+.form-group input {
+  width: 100%;
+  height: 52px;
+
+  padding: 0 16px;
+
+  font: inherit;
+  font-size: 0.97rem;
+  color: var(--crema);
+
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+
+  outline: none;
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.form-group input::placeholder {
+  color: rgba(246, 239, 224, 0.38);
+}
+
+.form-group input:hover {
+  border-color: rgba(217, 185, 112, 0.42);
+}
+
+.form-group input:focus {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--oro);
+  box-shadow: 0 0 0 4px rgba(217, 185, 112, 0.16);
+}
+
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--crema);
+  caret-color: var(--crema);
+  -webkit-box-shadow: 0 0 0 1000px #123f2e inset;
+  transition: background-color 9999s ease-out;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 52px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  color: rgba(246, 239, 224, 0.55);
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: var(--oro);
+  background: rgba(217, 185, 112, 0.1);
+}
+
+.login-button {
+  position: relative;
+  overflow: hidden;
+
+  height: 54px;
+  margin-top: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--verde-profundo);
+
+  background: linear-gradient(135deg, #ecd39a 0%, var(--oro) 45%, var(--oro-oscuro) 100%);
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 24px rgba(185, 143, 69, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.login-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+}
+
+.login-button:hover:not(:disabled)::after {
+  transform: translateX(130%);
+  transition: transform 0.8s ease;
+}
+
+.login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 30px rgba(185, 143, 69, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-button:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.55);
+  opacity: 0.55;
+}
+
+.login-button:focus-visible,
+.password-toggle:focus-visible {
+  outline: 2px solid var(--crema);
+  outline-offset: 3px;
+}
+
+@keyframes loginEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes loginGiro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 34px 22px 28px;
+    border-radius: 20px;
+  }
+
+  .login-logo {
+    width: 96px;
+    height: 96px;
+  }
+
+  .login-brand h1 {
+    font-size: 2.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-container {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+
+  .login-button::after {
+    display: none;
+  }
+}

@@ -1,0 +1,139 @@
+@if (toastService.visible()) {
+  @for (n of [toastService.id()]; track n) {
+    <div
+      class="toast"
+      [class.toast--error]="toastService.tipo() === 'error'"
+      [class.toast--success]="toastService.tipo() === 'success'"
+      [class.toast--warning]="toastService.tipo() === 'warning'"
+      [class.toast--info]="toastService.tipo() === 'info'"
+      [class.toast--saliendo]="toastService.saliendo()"
+      [attr.role]="toastService.tipo() === 'error' ? 'alert' : 'status'"
+      (mouseenter)="toastService.pausar()"
+      (mouseleave)="toastService.reanudar()"
+    >
+      <div class="toast__icon" aria-hidden="true">
+        @switch (toastService.tipo()) {
+          @case ('error') {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-octagon-alert preview-icon"
+            >
+              <path d="M12 16h.01" />
+              <path d="M12 8v4" />
+              <path
+                d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"
+              />
+            </svg>
+          }
+          @case ('success') {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-circle-check preview-icon"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="m16 9-5.5 5.5L8 12" />
+            </svg>
+          }
+          @case ('warning') {
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+                pathLength="1"
+              />
+              <path d="M12 9v4" pathLength="1" />
+              <path d="M12 17h.01" pathLength="1" />
+            </svg>
+          }
+          @case ('info') {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-circle-alert preview-icon"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+          }
+        }
+      </div>
+
+      <div class="toast__content">
+        <strong>
+          @switch (toastService.tipo()) {
+            @case ('error') {
+              Error
+            }
+            @case ('success') {
+              Listo
+            }
+            @case ('warning') {
+              Atención
+            }
+            @case ('info') {
+              Aviso
+            }
+          }
+        </strong>
+
+        <p>{{ toastService.mensaje() }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="toast__close"
+        (click)="cerrar()"
+        aria-label="Cerrar notificación"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+
+      <div class="toast__progress" aria-hidden="true">
+        <span [style.animation-duration.ms]="toastService.duracion()"></span>
+      </div>
+    </div>
+  }
+}
