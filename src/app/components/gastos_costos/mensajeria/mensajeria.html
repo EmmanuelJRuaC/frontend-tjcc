@@ -1,0 +1,969 @@
+<div class="mensajeria-page">
+  <app-toast></app-toast>
+  <header class="page-header">
+    <div class="page-header__content">
+      <div>
+        <h1 class="page-header__title">Mensajería</h1>
+
+        <p class="page-header__subtitle">
+          Gestiona los servicios de mensajería realizados durante cada semana.
+        </p>
+      </div>
+
+      <button type="button" class="btn-primary" (click)="abrirModalMensajeros()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-user-round-plus"
+        >
+          <path d="M2 21a8 8 0 0 1 13.292-6" />
+          <circle cx="10" cy="8" r="5" />
+          <path d="M19 16v6" />
+          <path d="M22 19h-6" />
+        </svg>
+
+        Nuevo mensajero
+      </button>
+    </div>
+  </header>
+
+  <section class="week-panel">
+    <div class="week-panel__main">
+      <div class="week-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-calendar-range"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M16 2v3" />
+          <path d="M3 9h18" />
+          <path d="M8 2v3" />
+          <path d="M17 13h-6" />
+          <path d="M13 17H7" />
+          <path d="M7 13h.01" />
+          <path d="M17 17h.01" />
+        </svg>
+      </div>
+
+      <div class="week-information">
+        <span class="week-panel__label"> Semana de mensajería </span>
+
+        <h2>
+          {{ formatear.formatearFechaLarga(semanaActual()?.fecha_inicio ?? '') }}
+
+          <span>—</span>
+
+          {{ formatear.formatearFechaLarga(semanaActual()?.fecha_fin ?? '') }}
+        </h2>
+
+        @if (semanaActual()?.estado === 'ABIERTA') {
+          <span class="status status--open">
+            <span class="status__dot"></span>
+
+            Semana abierta
+          </span>
+        } @else {
+          <span class="status status--closed">
+            <span class="status__dot"></span>
+
+            Semana cerrada
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="week-panel__actions">
+      <div class="week-selector">
+        <label> Historial </label>
+
+        <select [value]="semanaSeleccionadaId()" (change)="cambiarSemana($event)">
+          @for (semana of semanasMensajeria(); track semana.id) {
+            <option [value]="semana.id" [selected]="semana.id === semanaSeleccionadaId()">
+              {{ formatear.formatearFechaTexto(semana.fecha_inicio) }}
+              —
+              {{ formatear.formatearFechaTexto(semana.fecha_fin) }}
+              —
+              {{ semana.estado === 'ABIERTA' ? 'Abierta' : 'Cerrada' }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <button type="button" class="btn-primary" (click)="abrirModalNuevaSemana()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-calendar-plus"
+        >
+          <path d="M16 18h6" />
+          <path d="M16 2v3" />
+          <path d="M19 15v6" />
+          <path d="M21 11.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8.3" />
+          <path d="M3 9h18" />
+          <path d="M8 2v3" />
+        </svg>
+
+        Nueva semana
+      </button>
+
+      @if (semanaActual()?.estado === 'ABIERTA') {
+        <button type="button" class="btn-close-week" (click)="abrirModalCerrarSemana()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-calendar-x"
+          >
+            <path d="M8 2v3" />
+            <path d="M16 2v3" />
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18" />
+            <path d="m14 13-4 4" />
+            <path d="m10 13 4 4" />
+          </svg>
+
+          Cerrar semana
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="summary-grid">
+    <article class="summary-card">
+      <div class="summary-card__icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      </div>
+
+      <div>
+        <span class="summary-card__label"> Mensajeros </span>
+
+        <strong class="summary-card__value">
+          {{ mensajeros().length }}
+        </strong>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-card__icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+
+          <line x1="16" y1="2" x2="16" y2="6" />
+
+          <line x1="8" y1="2" x2="8" y2="6" />
+
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      </div>
+
+      <div>
+        <span class="summary-card__label"> Servicios </span>
+
+        <strong class="summary-card__value">
+          {{ totalServicios() }}
+        </strong>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-card__icon summary-card__icon--gold">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="1" x2="12" y2="23" />
+
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+      </div>
+
+      <div>
+        <span class="summary-card__label"> Total semana </span>
+
+        <strong class="summary-card__value">
+          {{ formatear.formatearMoneda(totalSemana()) }}
+        </strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="mensajeros-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-heading__eyebrow"> REGISTRO SEMANAL </span>
+
+        <h1 class="page-header__title">Mensajeros</h1>
+      </div>
+
+      <span class="section-heading__count"> {{ mensajeros().length }} registrados </span>
+    </div>
+
+    <div class="mensajeros-grid">
+      @for (mensajero of mensajerosSemana; track mensajero.id) {
+        <article class="mensajero-card">
+          <div class="mensajero-card__header">
+            <div class="mensajero-card__identity">
+              <div class="mensajero-avatar">
+                {{ mensajero.nombre.charAt(0) }}
+                {{ mensajero.apellido?.charAt(0) }}
+              </div>
+
+              <div>
+                <h3>
+                  {{ mensajero.nombre }}
+                  {{ mensajero.apellido }}
+                </h3>
+
+                <span> Mensajero #{{ mensajero.id }} </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mensajero-card__stats">
+            <div>
+              <span> Servicios </span>
+
+              <strong>
+                {{
+              agruparPorFecha(mensajero)
+              .flatMap(g => g.servicios).length
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span> Total </span>
+
+              <strong>
+                {{ formatear.formatearMoneda(totalMensajeros(mensajero)) }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="mensajerias">
+            <div class="mensajerias__header">
+              <span> Servicios realizados </span>
+
+              <span>
+                {{
+              agruparPorFecha(mensajero)
+              .flatMap(g => g.servicios).length
+                }}
+              </span>
+            </div>
+
+            @if (agruparPorFecha(mensajero).length > 0) {
+              <div class="mensajerias__list">
+                @for (grupo of agruparPorFecha(mensajero); track grupo.fecha) {
+                  <div class="date-group">
+                    <div class="date-group__title">
+                      <span class="date-group__line"></span>
+
+                      <span>
+                        {{ formatear.formatearFechaTexto(grupo.fecha) }}
+                      </span>
+                    </div>
+
+                    @for (servicio of grupo.servicios; track servicio.id) {
+                      @if (mensajeriaEditando !== servicio.id) {
+                        <div class="mensajeria-item">
+                          <div class="mensajeria-item__icon">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              class="lucide lucide-map-pin"
+                            >
+                              <path
+                                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                              />
+                              <circle cx="12" cy="10" r="3" />
+                            </svg>
+                          </div>
+
+                          <div class="mensajeria-item__content">
+                            <strong>
+                              {{ servicio.destino_servicio }}
+                            </strong>
+                          </div>
+
+                          <div class="mensajeria-item__value">
+                            @if (servicio.valor !== null && servicio.valor !== undefined) {
+                              {{ formatear.formatearMoneda(servicio.valor) }}
+                            } @else {
+                              <span class="value-empty"> Sin valor </span>
+                            }
+                          </div>
+
+                          @if (semanaActual()?.estado === 'ABIERTA') {
+                            <div class="mensajeria-actions">
+                              <button
+                                type="button"
+                                class="btn-edit"
+                                (click)="editarMensajeria(servicio)"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M12 20h9" />
+                                  <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                                </svg>
+                              </button>
+
+                              <button
+                                type="button"
+                                class="btn-delete"
+                                (click)="confirmarEliminar(servicio)"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M3 6h18" />
+                                  <path d="M8 6V4h8v2" />
+                                  <path d="M19 6l-1 14H6L5 6" />
+                                </svg>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      }
+
+                      @if (mensajeriaEditando === servicio.id && mensajeriaEditada) {
+                        <div class="mensajeria-edit">
+                          <form
+                            class="mensajeria-edit__form"
+                            #updateMensajeriaForm="ngForm"
+                            (ngSubmit)="actualizarMensajeria(updateMensajeriaForm)"
+                          >
+                            <div class="edit-field edit-field--date">
+                              <label for="edit-fecha">Fecha</label>
+
+                              <input
+                                id="edit-fecha"
+                                type="date"
+                                [(ngModel)]="mensajeriaEditada.fecha"
+                                [min]="semanaActual()?.fecha_inicio"
+                                [max]="semanaActual()?.fecha_fin"
+                                name="fecha"
+                              />
+                            </div>
+
+                            <div class="edit-field edit-field--value">
+                              <label for="edit-valor">Valor</label>
+
+                              <div class="input-money">
+                                <span>$</span>
+
+                                <input
+                                  id="edit-valor"
+                                  type="number"
+                                  inputmode="numeric"
+                                  min="0"
+                                  [(ngModel)]="mensajeriaEditada.valor"
+                                  placeholder="0"
+                                  name="valor"
+                                />
+                              </div>
+                            </div>
+
+                            <div class="edit-field edit-field--destination">
+                              <label for="edit-destino">Destino</label>
+
+                              <input
+                                id="edit-destino"
+                                type="text"
+                                [(ngModel)]="mensajeriaEditada.destino_servicio"
+                                placeholder="Destino del servicio"
+                                name="destino_servicio"
+                                autocomplete="off"
+                              />
+                            </div>
+
+                            <div class="edit-actions">
+                              <button type="submit" class="btn-update">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M20 6 9 17l-5-5" />
+                                </svg>
+                                Actualizar
+                              </button>
+
+                              <button
+                                type="button"
+                                class="btn-cancel-edit"
+                                (click)="cancelarEdicion()"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      }
+
+                      @if (mensajeriaEliminando === servicio.id) {
+                        <div class="delete-confirm">
+                          <div>
+                            <strong> ¿Eliminar esta mensajería? </strong>
+
+                            <span>
+                              {{ servicio.destino_servicio }}
+                            </span>
+                          </div>
+
+                          <div class="delete-confirm__actions">
+                            <button
+                              type="button"
+                              class="btn-cancel-edit"
+                              (click)="cancelarEliminar()"
+                            >
+                              Cancelar
+                            </button>
+
+                            <button
+                              type="button"
+                              class="btn-delete-confirm"
+                              (click)="eliminarMensajeria(servicio)"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-services">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="27"
+                  height="27"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+
+                  <line x1="16" y1="2" x2="16" y2="6" />
+
+                  <line x1="8" y1="2" x2="8" y2="6" />
+
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+
+                <span> No hay servicios registrados </span>
+              </div>
+            }
+          </div>
+
+          @if (semanaActual()?.estado === 'ABIERTA') {
+            <div class="mensajero-card__footer">
+              <button type="button" class="btn-secondary" (click)="abrirModalMensajeria(mensajero)">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+
+                Nueva mensajería
+              </button>
+            </div>
+          }
+        </article>
+      }
+
+      @if (mensajeros().length === 0) {
+        <div class="empty-page">
+          <div class="empty-page__icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+            </svg>
+          </div>
+
+          <h3>No hay mensajeros</h3>
+
+          <p>Registra el primer mensajero.</p>
+
+          <button type="button" class="btn-primary" (click)="abrirModalMensajeros()">
+            Nuevo mensajero
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+</div>
+
+@if (modalMensajeros) {
+  <div class="modal-overlay" (click)="cerrarModalMensajeros()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <div>
+          <h2 class="modal__eyebrow">Nuevo mensajero</h2>
+
+          <p>Registra los datos del mensajero.</p>
+        </div>
+
+        <button type="button" class="modal__close" (click)="cerrarModalMensajeros()">×</button>
+      </div>
+      <form #newMensajerosForm="ngForm" (ngSubmit)="registrarMensajero(newMensajerosForm)">
+        <div class="modal__body">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>
+                Nombre
+                <span>*</span>
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="nuevoMensajero.nombre"
+                name="nombre"
+                placeholder="Ej. Carlos"
+              />
+            </div>
+
+            <div class="form-field">
+              <label> Apellido </label>
+
+              <input
+                type="text"
+                [(ngModel)]="nuevoMensajero.apellido"
+                name="apellido"
+                placeholder="Ej. Rodríguez"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" class="btn-cancel" (click)="cerrarModalMensajeros()">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn-primary" [disabled]="!nuevoMensajero.nombre.trim()">
+            Crear mensajero
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (modalNuevaSemana) {
+  <div class="modal-overlay" (click)="cerrarModalNuevaSemana()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <div>
+          <h2 class="modal__eyebrow">Nueva semana</h2>
+
+          <p>Selecciona el rango de fechas de la nueva semana.</p>
+        </div>
+
+        <button type="button" class="modal__close" (click)="cerrarModalNuevaSemana()">×</button>
+      </div>
+
+      <form
+        #newSemanasMensajeriaForm="ngForm"
+        (ngSubmit)="registrarSemanaMensajeria(newSemanasMensajeriaForm)"
+      >
+        <div class="modal__body">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>
+                Fecha de inicio
+                <span>*</span>
+              </label>
+
+              <input type="date" [(ngModel)]="nuevaSemana.fecha_inicio" name="fecha_inicio" />
+            </div>
+
+            <div class="form-field">
+              <label>
+                Fecha de finalización
+                <span>*</span>
+              </label>
+
+              <input
+                type="date"
+                [(ngModel)]="nuevaSemana.fecha_fin"
+                [min]="nuevaSemana.fecha_inicio"
+                name="fecha_fin"
+              />
+            </div>
+          </div>
+
+          <div class="week-preview">
+            <span> Rango seleccionado </span>
+
+            @if (nuevaSemana.fecha_inicio && nuevaSemana.fecha_fin) {
+              <strong>
+                {{ formatear.formatearFechaTexto(nuevaSemana.fecha_inicio) }}
+
+                —
+
+                {{ formatear.formatearFechaTexto(nuevaSemana.fecha_fin) }}
+              </strong>
+            } @else {
+              <strong> Selecciona las fechas </strong>
+            }
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" class="btn-cancel" (click)="cerrarModalNuevaSemana()">
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="!nuevaSemana.fecha_inicio.trim || !nuevaSemana.fecha_fin"
+          >
+            Crear semana
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (modalMensajeria) {
+  <div class="modal-overlay modal-overlay--scroll" (click)="cerrarModalMensajeria()">
+    <div class="modal modal--large" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <div>
+          <span class="modal__eyebrow"> NUEVO SERVICIO </span>
+
+          <h2>Registrar mensajería</h2>
+
+          <p>
+            Mensajero:
+
+            <strong>
+              {{ mensajeroSeleccionado?.nombre }}
+
+              {{ mensajeroSeleccionado?.apellido }}
+            </strong>
+          </p>
+        </div>
+
+        <button type="button" class="modal__close" (click)="cerrarModalMensajeria()">×</button>
+      </div>
+
+      <form #newMensajeriasForm="ngForm" (ngSubmit)="guardarMensajerias(newMensajeriasForm)">
+        <div class="modal__body">
+          @for (grupo of fechasMensajeria; track $index; let fechaIndex = $index) {
+            <div class="fecha-form-group">
+              <div class="fecha-form-group__header">
+                <div>
+                  <span class="fecha-form-group__number"> FECHA {{ fechaIndex + 1 }} </span>
+
+                  <h3>Servicios del día</h3>
+                </div>
+
+                @if (fechasMensajeria.length > 1) {
+                  <button type="button" class="remove-date" (click)="quitarFecha(fechaIndex)">
+                    Quitar fecha
+                  </button>
+                }
+              </div>
+
+              <div class="form-field">
+                <label>
+                  Fecha
+                  <span>*</span>
+                </label>
+
+                <input
+                  type="date"
+                  [(ngModel)]="grupo.fecha"
+                  [min]="semanaActual()?.fecha_inicio"
+                  [max]="semanaActual()?.fecha_fin"
+                  name="fecha_{{ fechaIndex }}"
+                />
+
+                <small> La fecha debe estar dentro de la semana seleccionada. </small>
+              </div>
+
+              <div class="services-form">
+                @for (servicio of grupo.servicios; track $index; let servicioIndex = $index) {
+                  <div class="service-form-row">
+                    <div class="service-number">
+                      {{ servicioIndex + 1 }}
+                    </div>
+
+                    <div class="form-field">
+                      <label>
+                        Destino del servicio
+                        <span>*</span>
+                      </label>
+
+                      <input
+                        type="text"
+                        [(ngModel)]="grupo.servicios[servicioIndex].destino_servicio"
+                        placeholder="Ej. Entrega de documentos - Centro"
+                        name="destino_{{ fechaIndex }}_{{ servicioIndex }}"
+                      />
+                    </div>
+
+                    <div class="form-field">
+                      <label> Valor </label>
+
+                      <div class="input-money">
+                        <span> $ </span>
+
+                        <input
+                          type="number"
+                          min="0"
+                          [(ngModel)]="grupo.servicios[servicioIndex].valor"
+                          placeholder="0"
+                          name="valor_{{ fechaIndex }}_{{ servicioIndex }}"
+                        />
+                      </div>
+                    </div>
+
+                    @if (grupo.servicios.length > 1) {
+                      <button
+                        type="button"
+                        class="remove-service"
+                        (click)="quitarServicio(fechaIndex, servicioIndex)"
+                      >
+                        ×
+                      </button>
+                    }
+                  </div>
+                }
+
+                <button type="button" class="add-service" (click)="agregarServicio(fechaIndex)">
+                  + Agregar mensajería
+                </button>
+              </div>
+            </div>
+          }
+
+          <button type="button" class="add-date" (click)="agregarFecha()">
+            + Agregar otra fecha
+          </button>
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" class="btn-cancel" (click)="cerrarModalMensajeria()">
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="!fechasMensajeria.every(g => g.fecha && g.servicios.every(s => s.destino_servicio))"
+          >
+            Registrar mensajería
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (modalCerrarSemana) {
+  <div class="modal-overlay" (click)="cerrarModalCerrarSemana()">
+    <div class="modal modal--small" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-calendar-x"
+        >
+          <path d="M8 2v3" />
+          <path d="M16 2v3" />
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M3 9h18" />
+          <path d="m14 13-4 4" />
+          <path d="m10 13 4 4" />
+        </svg>
+      </div>
+
+      <div class="confirm-content">
+        <span class="modal__eyebrow"> CIERRE SEMANAL </span>
+
+        <h2>¿Cerrar esta semana?</h2>
+
+        <p>
+          Estás a punto de cerrar la semana
+
+          <strong>
+            {{ formatear.formatearFechaTexto(semanaActual()?.fecha_inicio ?? '') }}
+
+            —
+
+            {{ formatear.formatearFechaTexto(semanaActual()?.fecha_fin ?? '') }} </strong
+          >.
+        </p>
+
+        <p>
+          Se han registrado
+
+          <strong>
+            {{ totalServicios() }}
+          </strong>
+
+          servicios por un total de
+
+          <strong> {{ formatear.formatearMoneda(totalSemana()) }} </strong>.
+        </p>
+
+        <div class="warning-box">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-triangle-alert"
+          >
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+          </svg>
+
+          Una vez cerrada, no podrás registrar, editar ni eliminar mensajerías de esta semana.
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button type="button" class="btn-cancel" (click)="cerrarModalCerrarSemana()">
+          Cancelar
+        </button>
+
+        <button type="button" class="btn-primary" (click)="cerrarSemana()">Cerrar semana</button>
+      </div>
+    </div>
+  </div>
+}
