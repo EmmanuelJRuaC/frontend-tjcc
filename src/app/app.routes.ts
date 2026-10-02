@@ -10,7 +10,7 @@ import { Gastos } from './components/cecilia/gastos/gastos';
 
 // Componentes del módulo Gastos y Costos
 import { Mensajeria } from './components/gastos_costos/mensajeria/mensajeria';
-import { GastosCostos } from './components/gastos_costos/gastos-costos/gastos-costos';
+import { GastosCostos } from './components/gastos_costos/taller/gastos-costos';
 
 // Autenticación
 import { Login } from './components/login/login';

@@ -1,0 +1,788 @@
+<div class="gastos-costos-page">
+  <app-toast></app-toast>
+
+  <header class="page-header">
+    <div class="page-header__content">
+      <h1 class="page-header__title">Gastos y Costos</h1>
+
+      <p class="page-header__description">Gestiona y controla los gastos y costos registrados.</p>
+    </div>
+  </header>
+
+  <main class="columns-container">
+    <section class="data-card">
+      <div class="card-header">
+        <div>
+          <span class="card-eyebrow">REGISTROS</span>
+
+          <h2>Gastos</h2>
+
+          <p>Registra los gastos realizados.</p>
+        </div>
+
+        <button type="button" class="btn btn-primary" (click)="abrirModalGasto()">
+          <span>+</span>
+          Nuevo gasto
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Artículo</th>
+              <th>Valor</th>
+              <th>Tipo de pago</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (gasto of gastos(); track gasto.id) {
+              @if (gastoEditando === gasto.id && gastoEditado) {
+                <tr class="editing-row">
+                  <td colspan="5" class="cell-block">
+                    <form
+                      #updateGastosForm="ngForm"
+                      (ngSubmit)="actualizarGasto(updateGastosForm)"
+                      class="editing-form"
+                    >
+                      <div class="editing-grid">
+                        <div class="field ed-date">
+                          <label for="edit-gasto-fecha">Fecha</label>
+
+                          <input
+                            id="edit-gasto-fecha"
+                            type="date"
+                            [(ngModel)]="gastoEditado.fecha"
+                            name="fechaGastoEditado"
+                            required
+                          />
+                        </div>
+
+                        <div class="field ed-article">
+                          <label for="edit-gasto-articulo">Artículo</label>
+
+                          <input
+                            id="edit-gasto-articulo"
+                            type="text"
+                            [(ngModel)]="gastoEditado.articulo"
+                            name="articuloGastoEditado"
+                            placeholder="Artículo"
+                            autocomplete="off"
+                            required
+                          />
+                        </div>
+
+                        <div class="field ed-value">
+                          <label for="edit-gasto-valor">Valor</label>
+
+                          <div class="input-money">
+                            <span>$</span>
+
+                            <input
+                              id="edit-gasto-valor"
+                              type="number"
+                              inputmode="numeric"
+                              [(ngModel)]="gastoEditado.valor"
+                              name="valorGastoEditado"
+                              min="1"
+                              placeholder="0"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="field ed-payment">
+                          <span class="field-label">Tipo de pago</span>
+
+                          <div class="payment-options">
+                            @for (tipo of tiposPago; track tipo) {
+                              <label class="radio-option">
+                                <input
+                                  type="radio"
+                                  [value]="tipo"
+                                  [(ngModel)]="gastoEditado.tipoPago"
+                                  name="tipoPagoGastoEditado"
+                                  required
+                                />
+
+                                <span>{{ tipo }}</span>
+                              </label>
+                            }
+                          </div>
+                        </div>
+
+                        <div class="editing-actions">
+                          <button
+                            type="submit"
+                            class="btn-update"
+                            [disabled]="updateGastosForm.invalid"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="15"
+                              height="15"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                            Actualizar
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn-cancel-edit"
+                            (click)="cancelarEdicionGasto()"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </td>
+                </tr>
+              } @else {
+                <tr>
+                  <td data-label="Fecha">
+                    {{ formatear.formatearFecha(gasto.fecha) }}
+                  </td>
+
+                  <td data-label="Artículo">
+                    <span class="article-name">
+                      {{ gasto.articulo }}
+                    </span>
+                  </td>
+
+                  <td data-label="Valor">
+                    <strong class="amount">
+                      {{ formatear.formatearMoneda(gasto.valor!) }}
+                    </strong>
+                  </td>
+
+                  <td data-label="Tipo de pago">
+                    <span class="payment-badge">
+                      {{ gasto.tipoPago }}
+                    </span>
+                  </td>
+
+                  <td class="cell-actions">
+                    <div class="actions">
+                      <button
+                        type="button"
+                        class="btn-edit"
+                        aria-label="Editar gasto"
+                        title="Editar"
+                        (click)="editarGasto(gasto)"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-delete"
+                        aria-label="Eliminar gasto"
+                        title="Eliminar"
+                        (click)="confirmarEliminarGasto(gasto.id!)"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+              @if (gastoEliminando === gasto.id) {
+                <tr class="delete-row">
+                  <td colspan="5" class="cell-block">
+                    <div class="delete-confirm">
+                      <div class="delete-confirm__text">
+                        <strong>¿Eliminar este gasto?</strong>
+
+                        <span>{{ gasto.articulo }}</span>
+                      </div>
+
+                      <div class="delete-confirm__actions">
+                        <button
+                          type="button"
+                          class="btn-cancel-edit"
+                          (click)="cancelarEliminarGasto()"
+                        >
+                          Cancelar
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn-delete-confirm"
+                          (click)="eliminarGasto(gasto.id)"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-state cell-block">No hay gastos registrados.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="data-card">
+      <div class="card-header">
+        <div>
+          <span class="card-eyebrow">REGISTROS</span>
+
+          <h2>Costos</h2>
+
+          <p>Registra los costos de la operación.</p>
+        </div>
+
+        <button type="button" class="btn btn-primary" (click)="abrirModalCosto()">
+          <span>+</span>
+          Nuevo costo
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Artículo</th>
+              <th>Valor</th>
+              <th>Tipo de pago</th>
+              <th>Pagado a</th>
+              <th>Detalle</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (costo of costos(); track costo.id) {
+              @if (costoEditando === costo.id && costoEditado) {
+                <tr class="editing-row">
+                  <td colspan="7" class="cell-block">
+                    <form
+                      #updateCostosForm="ngForm"
+                      (ngSubmit)="actualizarCosto(updateCostosForm)"
+                      class="editing-form"
+                    >
+                      <div class="editing-grid">
+                        <div class="field ed-date">
+                          <label for="edit-costo-fecha">Fecha</label>
+
+                          <input
+                            id="edit-costo-fecha"
+                            type="date"
+                            [(ngModel)]="costoEditado.fecha"
+                            name="fechaCostoEditado"
+                            required
+                          />
+                        </div>
+
+                        <div class="field ed-article">
+                          <label for="edit-costo-articulo">Artículo</label>
+
+                          <input
+                            id="edit-costo-articulo"
+                            type="text"
+                            [(ngModel)]="costoEditado.articulo"
+                            name="articuloCostoEditado"
+                            placeholder="Artículo"
+                            autocomplete="off"
+                            required
+                          />
+                        </div>
+
+                        <div class="field ed-value">
+                          <label for="edit-costo-valor">Valor</label>
+
+                          <div class="input-money">
+                            <span>$</span>
+
+                            <input
+                              id="edit-costo-valor"
+                              type="number"
+                              inputmode="numeric"
+                              [(ngModel)]="costoEditado.valor"
+                              name="valorCostoEditado"
+                              min="1"
+                              placeholder="0"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="field ed-payment">
+                          <span class="field-label">Tipo de pago</span>
+
+                          <div class="payment-options">
+                            @for (tipo of tiposPago; track tipo) {
+                              <label class="radio-option">
+                                <input
+                                  type="radio"
+                                  [value]="tipo"
+                                  [(ngModel)]="costoEditado.tipoPago"
+                                  name="tipoPagoCostoEditado"
+                                  required
+                                />
+
+                                <span>{{ tipo }}</span>
+                              </label>
+                            }
+                          </div>
+                        </div>
+
+                        <div class="field ed-paid">
+                          <label for="edit-costo-pagado">Pagado a</label>
+
+                          <input
+                            id="edit-costo-pagado"
+                            type="text"
+                            [(ngModel)]="costoEditado.pagadoA"
+                            name="pagadoACostoEditado"
+                            placeholder="Pagado a"
+                            autocomplete="off"
+                            required
+                          />
+                        </div>
+
+                        <div class="field ed-detail">
+                          <label for="edit-costo-detalle">Detalles</label>
+
+                          <input
+                            id="edit-costo-detalle"
+                            type="text"
+                            [(ngModel)]="costoEditado.detalles"
+                            name="detalleCostoEditado"
+                            placeholder="Detalles"
+                            autocomplete="off"
+                          />
+                        </div>
+
+                        <div class="editing-actions">
+                          <button
+                            type="submit"
+                            class="btn-update"
+                            [disabled]="updateCostosForm.invalid"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="15"
+                              height="15"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                            Actualizar
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn-cancel-edit"
+                            (click)="cancelarEdicionCosto()"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </td>
+                </tr>
+              } @else {
+                <tr>
+                  <td data-label="Fecha">
+                    {{ formatear.formatearFecha(costo.fecha) }}
+                  </td>
+
+                  <td data-label="Artículo">
+                    <span class="article-name">
+                      {{ costo.articulo }}
+                    </span>
+                  </td>
+
+                  <td data-label="Valor">
+                    <strong class="amount">
+                      {{ formatear.formatearMoneda(costo.valor!) }}
+                    </strong>
+                  </td>
+
+                  <td data-label="Tipo de pago">
+                    <span class="payment-badge">
+                      {{ costo.tipoPago }}
+                    </span>
+                  </td>
+
+                  <td data-label="Pagado a">
+                    {{ costo.pagadoA }}
+                  </td>
+
+                  <td data-label="Detalle">
+                    <span class="detail">
+                      {{ costo.detalles }}
+                    </span>
+                  </td>
+
+                  <td class="cell-actions">
+                    <div class="actions">
+                      <button
+                        type="button"
+                        class="btn-edit"
+                        aria-label="Editar costo"
+                        title="Editar"
+                        (click)="editarCosto(costo)"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn-delete"
+                        aria-label="Eliminar costo"
+                        title="Eliminar"
+                        (click)="confirmarEliminarCosto(costo.id!)"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+
+              @if (costoEliminando === costo.id) {
+                <tr class="delete-row">
+                  <td colspan="7" class="cell-block">
+                    <div class="delete-confirm">
+                      <div class="delete-confirm__text">
+                        <strong>¿Eliminar este costo?</strong>
+
+                        <span>{{ costo.articulo }}</span>
+                      </div>
+
+                      <div class="delete-confirm__actions">
+                        <button
+                          type="button"
+                          class="btn-cancel-edit"
+                          (click)="cancelarEliminarCosto()"
+                        >
+                          Cancelar
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn-delete-confirm"
+                          (click)="eliminarCosto(costo.id)"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state cell-block">No hay costos registrados.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  @if (modalNuevoGasto) {
+    <div class="modal-backdrop" (click)="cerrarModalGasto()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <span class="card-eyebrow">NUEVO REGISTRO</span>
+
+            <h2>Crear gasto</h2>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            aria-label="Cerrar"
+            (click)="cerrarModalGasto()"
+          >
+            ×
+          </button>
+        </div>
+
+        <form #newGastoForm="ngForm" (ngSubmit)="crearGasto(newGastoForm)" class="form">
+          <div class="form-body">
+            <div class="form-group">
+              <label for="gasto-fecha">Fecha</label>
+
+              <input
+                id="gasto-fecha"
+                type="date"
+                name="fecha"
+                [(ngModel)]="nuevoGasto.fecha"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="gasto-articulo">Artículo</label>
+
+              <input
+                id="gasto-articulo"
+                type="text"
+                name="articulo"
+                [(ngModel)]="nuevoGasto.articulo"
+                placeholder="Ej. Papelería"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="gasto-valor">Valor</label>
+
+              <input
+                id="gasto-valor"
+                type="number"
+                inputmode="numeric"
+                name="valor"
+                [(ngModel)]="nuevoGasto.valor"
+                min="1"
+                placeholder="0"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <span class="field-label">Tipo de pago</span>
+
+              <div class="payment-options">
+                @for (tipo of tiposPago; track tipo) {
+                  <label class="radio-option">
+                    <input
+                      type="radio"
+                      name="tipoPago"
+                      [value]="tipo"
+                      [(ngModel)]="nuevoGasto.tipoPago"
+                      required
+                    />
+
+                    <span>{{ tipo }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalGasto()">
+              Cancelar
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="newGastoForm.invalid">
+              Crear gasto
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (modalNuevoCosto) {
+    <div class="modal-backdrop" (click)="cerrarModalCosto()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <span class="card-eyebrow">NUEVO REGISTRO</span>
+
+            <h2>Crear costo</h2>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            aria-label="Cerrar"
+            (click)="cerrarModalCosto()"
+          >
+            ×
+          </button>
+        </div>
+
+        <form #costoForm="ngForm" (ngSubmit)="crearCosto(costoForm)" class="form">
+          <div class="form-body">
+            <div class="form-group">
+              <label for="costo-fecha">Fecha</label>
+
+              <input
+                id="costo-fecha"
+                type="date"
+                name="fecha"
+                [(ngModel)]="nuevoCosto.fecha"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="costo-articulo">Artículo</label>
+
+              <input
+                id="costo-articulo"
+                type="text"
+                name="articulo"
+                [(ngModel)]="nuevoCosto.articulo"
+                placeholder="Ej. Servicio de internet"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="costo-valor">Valor</label>
+
+              <input
+                id="costo-valor"
+                type="number"
+                inputmode="numeric"
+                name="valor"
+                [(ngModel)]="nuevoCosto.valor"
+                min="1"
+                placeholder="0"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <span class="field-label">Tipo de pago</span>
+
+              <div class="payment-options">
+                @for (tipo of tiposPago; track tipo) {
+                  <label class="radio-option">
+                    <input
+                      type="radio"
+                      name="tipoPago"
+                      [value]="tipo"
+                      [(ngModel)]="nuevoCosto.tipoPago"
+                      required
+                    />
+
+                    <span>{{ tipo }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="costo-pagado">Pagado a</label>
+
+              <input
+                id="costo-pagado"
+                type="text"
+                name="pagadoA"
+                [(ngModel)]="nuevoCosto.pagadoA"
+                placeholder="Ej. Proveedor"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="costo-detalle">Detalle</label>
+
+              <textarea
+                id="costo-detalle"
+                name="detalle"
+                [(ngModel)]="nuevoCosto.detalles"
+                placeholder="Describe el costo..."
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalCosto()">
+              Cancelar
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="costoForm.invalid">
+              Crear costo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
